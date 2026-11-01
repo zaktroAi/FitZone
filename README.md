@@ -12,7 +12,7 @@ npm run build          # production build to dist/
 
 ## Supabase setup
 1. Create a project at supabase.com.
-2. SQL Editor: run `supabase/schema.sql` (tables, RLS policies, sample rows for programs/plans).
+2. SQL Editor: run `supabase/schema.sql` (tables, RLS policies, public enquiry insert grants, sample rows). If the tables already exist, run the two `GRANT` statements in that file separately.
 3. Authentication â†’ Users â†’ Add user (email + password) for each admin.
 4. Make that user an admin (SQL editor): `insert into admins (user_id) select id from auth.users where email = 'you@example.com';`
 5. In Project Connect, copy the Project URL and a publishable key into `.env` as `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`. Legacy anon keys are supported. Never put a secret or `service_role` key in this app.
@@ -28,6 +28,7 @@ Import the repo, framework Vite, add the three env vars, deploy. `vercel.json` r
 - Public visitors can read active plans/trainers/programs and content, and insert enquiries only.
 - No payments are implemented; plan selection leads to an enquiry.
 - No images are bundled: the hero is a CSS gradient. Add your own photos to `public/`.
+
 
 
 
