@@ -21,6 +21,8 @@ do $$ declare t text; begin
 end $$;
 create policy "public read content" on content for select to anon, authenticated using (true);
 create policy "public create enquiry" on enquiries for insert to anon, authenticated with check (status = 'new');
+grant insert on table public.enquiries to anon;
+grant select, insert, update, delete on table public.enquiries to authenticated;
 
 insert into programs (title, description, sort) values
 ('Strength Training','Barbell-focused progressive programs for raw strength.',1),
@@ -33,5 +35,7 @@ insert into plans (name, price, period, features, featured, sort) values
 ('Pro',49,'month',E'Everything in Basic\nGroup classes\nCardio zone',true,2),
 ('Elite',89,'month',E'Everything in Pro\n2 PT sessions/month\nPriority booking',false,3);
 -- Sample rows above are placeholders: edit prices in /admin.
+
+
 
 
