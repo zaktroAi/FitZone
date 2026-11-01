@@ -30,8 +30,16 @@ function Contact({ c }) {
     if (!supabase) return setSt({ s: 'error', m: 'Enquiries are unavailable until the site is connected to Supabase.' })
     setSt({ s: 'sending' })
     try {
-      const { error } = await supabase.from('enquiries').insert({ name: v.name.trim(), email: v.email.trim(), phone: v.phone.trim() || null, plan: plan || null, message: v.message.trim() })
-      if (error) throw error
+      const enquiry = { name: v.name.trim(), email: v.email.trim(), phone: v.phone.trim() || null, plan: plan || null, message: v.message.trim() }
+      const { error } = await supabase.from('enquiries').insert(enquiry)
+      if (error?.code === 'PGRST204' && error.message?.includes('plan')) {
+        const { plan: ignoredPlan, ...compatibleEnquiry } = enquiry
+        const message = plan ? 'Selected plan: ' + plan + String.fromCharCode(10, 10) + compatibleEnquiry.message : compatibleEnquiry.message
+
+" + compatibleEnquiry.message : compatibleEnquiry.message
+        const { error: fallbackError } = await supabase.from('enquiries').insert({ ...compatibleEnquiry, message })
+        if (fallbackError) throw fallbackError
+      } else if (error) throw error
       setSt({ s: 'ok' })
       setV({ name: '', email: '', phone: '', message: '' })
     } catch {
@@ -46,6 +54,8 @@ function Contact({ c }) {
       <button className="btn primary" disabled={st.s === 'sending'}>{st.s === 'sending' ? 'Sending…' : 'Send enquiry'}</button>
       {st.s === 'ok' && <p className="ok" role="status">Enquiry sent. We will be in touch.</p>}{st.s === 'error' && <p className="err" role="alert">{st.m}</p>}</form></section>
 }
+
+
 
 
 
