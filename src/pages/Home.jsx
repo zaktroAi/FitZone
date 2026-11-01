@@ -29,16 +29,23 @@ function Contact({ c }) {
     setErrs(er); if (Object.keys(er).length) return
     if (!supabase) return setSt({ s: 'error', m: 'Enquiries are unavailable until the site is connected to Supabase.' })
     setSt({ s: 'sending' })
-    const { error } = await supabase.from('enquiries').insert({ name: v.name.trim(), email: v.email.trim(), phone: v.phone.trim() || null, plan: plan || null, message: v.message.trim() })
-    if (error) setSt({ s: 'error', m: 'Your enquiry was not sent. Please try again or use WhatsApp.' })
-    else { setSt({ s: 'ok' }); setV({ name: '', email: '', phone: '', message: '' }) }
+    try {
+      const { error } = await supabase.from('enquiries').insert({ name: v.name.trim(), email: v.email.trim(), phone: v.phone.trim() || null, plan: plan || null, message: v.message.trim() })
+      if (error) throw error
+      setSt({ s: 'ok' })
+      setV({ name: '', email: '', phone: '', message: '' })
+    } catch {
+      setSt({ s: 'error', m: 'Your enquiry was not sent. Please try again or use WhatsApp.' })
+    }
   }
-  const f = (k, l, t = 'text') => <label>{l}<input type={t} value={v[k]} aria-invalid={!!errs[k]} onChange={e => setV({ ...v, [k]: e.target.value })}/>{errs[k] && <span className="err">{errs[k]}</span>}</label>
+  const f = (k, l, t = 'text', maxLength) => <label>{l}<input type={t} maxLength={maxLength} value={v[k]} aria-invalid={!!errs[k]} onChange={e => setV({ ...v, [k]: e.target.value })}/>{errs[k] && <span className="err">{errs[k]}</span>}</label>
   return <section id="contact" className="sec contact"><div><h2>Contact</h2><h3>Opening hours</h3><p className="pre">{c.hours}</p><h3>Location</h3><p>{c.address}</p>
     {WA ? <Btn variant="ghost" href={`https://wa.me/${WA}`} target="_blank" rel="noreferrer">Chat on WhatsApp</Btn> : <p className="note">WhatsApp: set VITE_WHATSAPP_NUMBER to enable.</p>}</div>
-    <form className="card" onSubmit={submit} noValidate><h3>{plan ? `Join: ${plan}` : 'Send an enquiry'}</h3>{f('name', 'Name')}{f('email', 'Email', 'email')}{f('phone', 'Phone (optional)', 'tel')}
-      <label>Message<textarea rows="4" value={v.message} onChange={e => setV({ ...v, message: e.target.value })}/>{errs.message && <span className="err">{errs.message}</span>}</label>
+    <form className="card" onSubmit={submit} noValidate><h3>{plan ? `Join: ${plan}` : 'Send an enquiry'}</h3>{f('name', 'Name', 'text', 100)}{f('email', 'Email', 'email', 200)}{f('phone', 'Phone (optional)', 'tel', 30)}
+      <label>Message<textarea rows="4" maxLength={2000} value={v.message} onChange={e => setV({ ...v, message: e.target.value })}/>{errs.message && <span className="err">{errs.message}</span>}</label>
       <button className="btn primary" disabled={st.s === 'sending'}>{st.s === 'sending' ? 'Sending…' : 'Send enquiry'}</button>
       {st.s === 'ok' && <p className="ok" role="status">Enquiry sent. We will be in touch.</p>}{st.s === 'error' && <p className="err" role="alert">{st.m}</p>}</form></section>
 }
+
+
 
