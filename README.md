@@ -25,9 +25,10 @@ Import the repo, framework Vite, add the three env vars, deploy. `vercel.json` r
 
 ## Notes
 - Admin routes require a signed-in user whose ID has a row in `admins`. The route guard improves navigation; database RLS remains the security boundary. The `is_admin()` helper runs with invoker privileges.
-- Public visitors can read active plans/trainers/programs and content, and insert enquiries only.
+- Public visitors can read active plans/trainers/programs and content, and insert enquiries only. If an existing database has no `plan` column, the selected plan is saved in the enquiry message.
 - No payments are implemented; plan selection leads to an enquiry.
 - No images are bundled: the hero is a CSS gradient. Add your own photos to `public/`.
+
 
 
 
